@@ -1,0 +1,69 @@
+#ifndef functions_h
+#define functions_h
+
+#include <FastLED.h>
+#include <math.h>
+#include <stdint.h>
+#include <parameters.h>
+
+
+int getLedIndex32(int x, int y) {
+  const int panelWidth = 32;
+  const int panelHeight = 8;
+  int panel = y / panelHeight;
+  int localY = y % panelHeight;
+  int baseIndex = panel * panelWidth * panelHeight;
+  int panelX = (panel % 2 == scramble1) ? x : (panelWidth - 1 - x);
+
+  if (x % 2 == scramble2)
+    return baseIndex + panelX * panelHeight + localY;
+  else
+    return baseIndex + panelX * panelHeight + (panelHeight - 1 - localY);
+}
+
+
+void generateNoiseFrame() {
+    static uint32_t t1 = 0, t2 = 0, t3 = 0; // Z axes for R/G/B noise
+    
+  
+    for (int y = 0; y < DISPLAY_HEIGHT; y++) {
+      for (int x = 0; x < DISPLAY_WIDTH; x++) {
+        uint16_t i = getLedIndex32(x, y);  
+
+    
+        // Use high-resolution 16-bit noise and scale it down
+        uint8_t valR = inoise16(x * xScale1, y * yScale1, t1) >> 8;
+        uint8_t valG = inoise16(x * xScale2, y * yScale2, t2) >> 8;
+        uint8_t valB = inoise16(x * xScale3, y * yScale3, t3) >> 8;
+  
+        // Apply sin curve for visual effect (like your sineTable)
+        CRGB targetColor = CRGB(sin8(valR * sinFreqR), sin8(valG * sinFreqG) , sin8(valB * sinFreqB));
+        
+              // Apply low-pass filter: blend previous value with current
+      leds[i] = blend(ledsPrev[i], targetColor, smoothing);  // 96 = smoother, lower = slower response
+      ledsPrev[i] = leds[i];  // Store for next frame     
+      }
+    }   
+    t1 += tScale1;  // evolve time
+    t2 += tScale2;
+    t3 += tScale3;
+  
+  }
+
+void generateNoisyMask(){
+  static uint8_t tM1=0;
+  for (int y = 0; y < DISPLAY_HEIGHT; y++) {
+    for (int x = 0; x < DISPLAY_WIDTH; x++) {
+      uint16_t i = getLedIndex32(x, y);  
+
+      uint8_t msk1=inoise16(x * MxScale1, y * MyScale1, tM1) >> 8;
+      
+      CRGB targetMask=CRGB(sin8(msk1* sinFreqM),sin8(msk1* sinFreqM),sin8(msk1* sinFreqM));
+      m1[i]=blend(m1_prev[i],targetMask,m_smoothing);
+      m1_prev[i]=m1[i];
+    }
+  }
+  tM1+=MtScale1;
+}
+#endif
+
