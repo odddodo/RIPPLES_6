@@ -5,7 +5,7 @@
 
 #define I2C_SLAVE_ADDR 0x08  // Must match master's address
 
-const int NUM_SLIDERS = 14;
+const int NUM_SLIDERS = 24;
 uint8_t sliderValues[NUM_SLIDERS];
 
 int mapToFixedSet(uint8_t input) {
@@ -17,19 +17,32 @@ int mapToFixedSet(uint8_t input) {
 
 void updateSliderValues(){
     sinFreqR=sliderValues[0]/16;
-    sinFreqG=sliderValues[1]/16;
-    sinFreqB=sliderValues[2]/16;
-    xScale1=sliderValues[3]*50;
-    yScale1=sliderValues[4]*50;
-    xScale2=sliderValues[5]*50;
-    yScale2=sliderValues[6]*50;
-    xScale3=sliderValues[7]*50;
-   yScale3=sliderValues[8]*50;
-   tScale1=sliderValues[9];
-   tScale2=sliderValues[10];
-   tScale3=sliderValues[11];
-   scramble1=mapToFixedSet(sliderValues[12]);
-   scramble2=mapToFixedSet(sliderValues[13]);
+    amp_R=sliderValues[1];
+    bias_R=255-sliderValues[2];
+    phase_R=sliderValues[3]*4;
+    xScaleR=sliderValues[4]*64;
+    yScaleR=sliderValues[5]*64;
+    tScaleR=sliderValues[6];
+
+        sinFreqG=sliderValues[7]/16;
+    amp_G=sliderValues[8];
+    bias_G=255-sliderValues[9];
+    phase_G=sliderValues[10]*4;
+    xScaleG=sliderValues[11]*64;
+    yScaleG=sliderValues[12]*64;
+    tScaleG=sliderValues[13];
+
+        sinFreqB=sliderValues[14]/16;
+    amp_B=sliderValues[15];
+    bias_B=255-sliderValues[16];
+    phase_B=sliderValues[17]*4;
+    xScaleB=sliderValues[18]*64;
+    yScaleB=sliderValues[19]*64;
+    tScaleB=sliderValues[20];
+
+  
+   scramble1=mapToFixedSet(sliderValues[21]);
+   scramble2=mapToFixedSet(sliderValues[22]);
 }
 void initSliderValues(){
     for(int i=0;i<NUM_SLIDERS;i++){
